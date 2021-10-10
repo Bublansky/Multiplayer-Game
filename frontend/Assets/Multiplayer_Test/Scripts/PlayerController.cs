@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -6,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody2D _myRigidbody2D;
     [SerializeField] private Animator _myAnimator;
     [SerializeField] private Transform _myTransform;
+    [SerializeField] private PlayerFeet _playerFeet;
 
     [Header("Parameters")]
     [SerializeField] private float _speed = 5.0f;
@@ -16,6 +18,15 @@ public class PlayerController : MonoBehaviour
     private int _jumpCount;
     private static readonly int JumpTrigger = Animator.StringToHash("jump");
     private static readonly int WalkTrigger = Animator.StringToHash("walk");
+
+    private bool IsJumping => !_canJump && _jumpCount >= 2; 
+
+    #region MonoBehaviour Callbacks
+
+    private void Awake()
+    {
+        _playerFeet.OnJumpPlayerHead += HandleJumpPlayerHead;
+    }
 
     private void Update()
     {
@@ -34,6 +45,16 @@ public class PlayerController : MonoBehaviour
              _canJump = true;
             _jumpCount = 0;
             _myAnimator.SetBool(JumpTrigger, false);
+        }
+    }
+
+    #endregion
+
+    private void HandleJumpPlayerHead(PlayerFeet.JumpPlayerHeadArgs args)
+    {
+        if (IsJumping)
+        {
+            Debug.Log("jump player head");
         }
     }
 
