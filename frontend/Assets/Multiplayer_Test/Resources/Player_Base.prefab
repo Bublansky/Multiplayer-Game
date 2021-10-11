@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 2937201190864855785}
   - component: {fileID: 6635106857688994953}
   - component: {fileID: 2937201190864855789}
+  - component: {fileID: -6177227844432143445}
+  - component: {fileID: 5360196524723596986}
   m_Layer: 0
   m_Name: Player_Base
   m_TagString: Player
@@ -153,10 +155,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f7c6faea3bf28428725153b2de0df4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _myRigidbody2D: {fileID: 2937201190864855785}
+  _myRigidbody: {fileID: 2937201190864855785}
+  _myCollider: {fileID: 2937201190864855784}
+  _myRenderer: {fileID: 2937201190864855791}
   _myAnimator: {fileID: 2937201190864855789}
   _myTransform: {fileID: 2937201190864855790}
   _playerFeet: {fileID: 1818574749702725186}
+  _photonView: {fileID: -6177227844432143445}
   _speed: 5
   _jumpForce: 10
   _isInputEnabled: 0
@@ -179,6 +184,45 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &-6177227844432143445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2937201190864855787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 2
+  OwnershipTransfer: 0
+  observableSearch: 1
+  ObservedComponents:
+  - {fileID: 5360196524723596986}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &5360196524723596986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2937201190864855787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 0
 --- !u!1 &5794668613684840330
 GameObject:
   m_ObjectHideFlags: 0
