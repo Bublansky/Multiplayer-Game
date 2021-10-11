@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class PlayerFeet : MonoBehaviour
@@ -17,9 +18,17 @@ public class PlayerFeet : MonoBehaviour
 
     private void HandlePlayerKill(Collision2D collision2D)
     {
-        Debug.Log($"{_parent.gameObject.name} killed {collision2D.collider.gameObject.name}");
-
+        //Debug.Log($"{_parent.gameObject.name} killed {collision2D.collider.gameObject.name}");
+        //collision2D.collider.enabled = false;
+        collision2D.otherCollider.enabled = false;
+        StartCoroutine(ActivateCollider(collision2D.otherCollider));
         OnJumpPlayerHead?.Invoke(new JumpPlayerHeadArgs(collision2D.collider));
+    }
+
+    private IEnumerator ActivateCollider(Behaviour c)
+    {
+        yield return new WaitForSeconds(0.2f);
+        c.enabled = true;
     }
 
     public readonly struct JumpPlayerHeadArgs
