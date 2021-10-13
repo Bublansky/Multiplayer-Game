@@ -1,7 +1,5 @@
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Pixel_Adventure_1.Assets.Scripts

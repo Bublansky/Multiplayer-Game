@@ -1,5 +1,6 @@
 using System;
 using Photon.Pun;
+using Pixel_Adventure_1.Assets.Scripts;
 using Unity.Mathematics;
 using UnityEngine;
 

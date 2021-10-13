@@ -1,5 +1,6 @@
 using System;
 using Photon.Pun;
+using Pixel_Adventure_1.Assets.Scripts;
 using UnityEngine;
 
 namespace Backend.Scripts
@@ -10,7 +11,7 @@ namespace Backend.Scripts
         [SerializeField] private GameObject selectedCharacter;
         [SerializeField] private int characterSelectedIndex;
 
-        private void Start()
+        private void Awake()
         {
             if (photonView.IsMine)
             {
@@ -32,6 +33,16 @@ namespace Backend.Scripts
                 transform.rotation,
                 transform
             );
+            
+            // selectedCharacter.gameObject.name += DateTime.Now.ToFileTime();
+            GetComponent<PlayerController>().SetAnimator(selectedCharacter.gameObject.GetComponent<Animator>());
+            GetComponent<PlayerController>().SetRigidBody(selectedCharacter.gameObject.GetComponent<Rigidbody2D>());
+            // selectedCharacter.gameObject.GetComponent<PlayerController>().SetAnimator();
+        }
+
+        public int GetSelectedCharacter()
+        {
+            return characterSelectedIndex;
         }
     }
 }
