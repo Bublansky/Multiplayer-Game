@@ -47,13 +47,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     #region COROUTINES
 
-    private IEnumerator EndOfGame(string winner, int score)
+    private IEnumerator EndOfGame(string winner)
     {
         var timer = 5.0f;
 
         while (timer > 0.0f)
         {
-            _infoText.text = $"Player {winner} won with {score} points.\n\n\n" +
+            _infoText.text = $"Player {winner} won.\n\n\n" +
                             $"Returning to login screen in {timer:n2} seconds.";
 
             yield return new WaitForEndOfFrame();
@@ -177,6 +177,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void CheckEndOfGame()
     {
         var allDestroyed = true;
+        var livePlayers = 0;
+        var winner = "";
 
         foreach (var player in PhotonNetwork.PlayerList)
         {
@@ -184,32 +186,20 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 if ((int) lives > 0)
                 {
-                    allDestroyed = false;
-                    break;
+                    livePlayers++;
+                    winner = player.NickName;
                 }
             }
         }
 
-        if (allDestroyed)
+        if (livePlayers == 1)
         {
             if (PhotonNetwork.IsMasterClient)
             {
                 StopAllCoroutines();
             }
 
-            var winner = "";
-            var score = -1;
-
-            foreach (var player in PhotonNetwork.PlayerList)
-            {
-                if (player.GetScore() > score)
-                {
-                    winner = player.NickName;
-                    score = player.GetScore();
-                }
-            }
-
-            StartCoroutine(EndOfGame(winner, score));
+            StartCoroutine(EndOfGame(winner));
         }
     }
 
