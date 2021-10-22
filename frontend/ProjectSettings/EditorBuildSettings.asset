@@ -9,12 +9,6 @@ EditorBuildSettings:
     path: Assets/Multiplayer_Test/Scenes/Lobby.unity
     guid: e6b69b0990461f7478ea8d10402ba2c1
   - enabled: 1
-    path: Assets/Multiplayer_Test/Scenes/Main.unity
-    guid: 564d1aa028d8d394895386feb0d8d2ca
-  - enabled: 1
-    path: Assets/Multiplayer_Test/Scenes/DemoAsteroids-LobbyScene.unity
-    guid: 73a1e413c1ef9d74fa646ffe6bb6d24a
-  - enabled: 1
-    path: Assets/Multiplayer_Test/Scenes/DemoAsteroids-GameScene.unity
-    guid: 0b96cbfe046f3e94698d286c42ae0370
+    path: Assets/Multiplayer_Test/Scenes/Main_Tanks.unity
+    guid: dbf479cc6f6173044bf5fee0d0851439
   m_configObjects: {}
