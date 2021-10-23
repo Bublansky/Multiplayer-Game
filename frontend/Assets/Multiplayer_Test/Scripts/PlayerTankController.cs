@@ -3,6 +3,8 @@ using JetBrains.Annotations;
 using Photon.Pun;
 using Photon.Pun.UtilityScripts;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerTankController : MonoBehaviourPunCallbacks
@@ -12,9 +14,13 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
     [SerializeField] private Collider _myCollider;
     [SerializeField] private Renderer _myRenderer;
     [SerializeField] private Transform _myTransform;
-    
+    [SerializeField] private NavMeshAgent _agent;
+
     [Header("Parameters")]
-    [SerializeField] private float _speed = 5.0f;
+    [SerializeField] private float _movementSpeed = 5.0f;
+    [SerializeField] private float _rotationSpeed = 30f;
+    
+    [SerializeField] private Transform _lookAt;
 
     private bool _controllable = true;
     private Camera _mainCamera;
@@ -76,18 +82,24 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
 
     private void Move()
     {
-        var horizontalMovement = Input.GetAxis("Horizontal");
-        var verticalMovement = Input.GetAxis("Vertical");
+        var horizontalAxis = Input.GetAxis("Horizontal");
+        var verticalAxis = Input.GetAxis("Vertical");
 
-        if (horizontalMovement != 0 || verticalMovement != 0)
-        {
-            var movement = new Vector3(horizontalMovement, 0f, verticalMovement);
-            _myTransform.position += movement * (Time.deltaTime * _speed);    
-        }
+        var verticalMovement = _myTransform.position + _myTransform.forward *
+            (Time.deltaTime * _movementSpeed * verticalAxis);
+
+        var angle = Time.deltaTime * _rotationSpeed * horizontalAxis;
+
+        var rotation = (angle + _myTransform.rotation.eulerAngles.y) * Vector3.up;
+        
+        _myRigidbody.MovePosition(verticalMovement);
+        _myRigidbody.MoveRotation(Quaternion.Euler(rotation));
     }
 
     private void Aim()
     {
+        //_myTransform.LookAt(_lookAt);
+        return;
         var cameraRay = _mainCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(cameraRay, out var hit, 1000))
@@ -96,7 +108,7 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
 
             if (distance > 1)
             {
-                _myTransform.LookAt(hit.point);
+                //_myTransform.LookAt(hit.point);
             }
         }
     }
