@@ -17,6 +17,7 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
     [SerializeField] private float _speed = 5.0f;
 
     private bool _controllable = true;
+    private Camera _mainCamera;
 
     #region MonoBehaviour Callbacks
 
@@ -30,6 +31,7 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
         // we flag as don't destroy on load so that instance survives level synchronization
         // , thus giving a seamless experience when levels load.
         DontDestroyOnLoad(gameObject);
+        _mainCamera = Camera.main;
     }
 
     private void Update()
@@ -77,16 +79,26 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
         var horizontalMovement = Input.GetAxis("Horizontal");
         var verticalMovement = Input.GetAxis("Vertical");
 
-        var movement = new Vector3(horizontalMovement, 0f, verticalMovement);
-        _myTransform.position += movement * (Time.deltaTime * _speed);
+        if (horizontalMovement != 0 || verticalMovement != 0)
+        {
+            var movement = new Vector3(horizontalMovement, 0f, verticalMovement);
+            _myTransform.position += movement * (Time.deltaTime * _speed);    
+        }
     }
-    
+
     private void Aim()
     {
-        var mouseX = Input.GetAxis("Mouse X");
-        var mouseY = Input.GetAxis("Mouse Y");
+        var cameraRay = _mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        Debug.Log($"{mouseX}, {mouseY}");
+        if (Physics.Raycast(cameraRay, out var hit, 1000))
+        {
+            var distance = Vector3.Distance(_myTransform.position, hit.point);
+
+            if (distance > 1)
+            {
+                _myTransform.LookAt(hit.point);
+            }
+        }
     }
 
     private void IncreaseDeathCounter()
