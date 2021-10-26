@@ -1,29 +1,36 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Photon.Pun;
 using Photon.Pun.UtilityScripts;
 using Photon.Realtime;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
-public class GameManager : MonoBehaviourPunCallbacks
+public class TankGameManager : MonoBehaviourPunCallbacks
 {
-    public static GameManager Instance = null;
-
     [SerializeField] private Text _infoText;
+    [SerializeField] private Transform[] _playerStartPositions;
+    [SerializeField] private float _timePerRoundInMinutes = 5; //in seconds
+    [SerializeField] private Camera _mainCamera;
+
+    [ReadOnly]
+    [SerializeField] private float _remainingTime;
+
+    private float TimePerRoundInSeconds => _timePerRoundInMinutes * 60;
 
     #region UNITY
-
-    public void Awake()
-    {
-        Instance = this;
-    }
 
     public override void OnEnable()
     {
         base.OnEnable();
-
         CountdownTimer.OnCountdownTimerHasExpired += OnCountdownTimerIsExpired;
+
+        Application.targetFrameRate = 30;
     }
 
     public void Start()
@@ -47,13 +54,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     #region COROUTINES
 
-    private IEnumerator EndOfGame(string winner)
+    private IEnumerator EndOfGame(string winners)
     {
         var timer = 5.0f;
 
         while (timer > 0.0f)
         {
-            _infoText.text = $"Player {winner} won.\n\n\n" +
+            _infoText.text = $"{winners} won.\n\n\n" +
                             $"Returning to login screen in {timer:n2} seconds.";
 
             yield return new WaitForEndOfFrame();
@@ -78,14 +85,6 @@ public class GameManager : MonoBehaviourPunCallbacks
         PhotonNetwork.Disconnect();
     }
 
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        if (PhotonNetwork.LocalPlayer.ActorNumber == newMasterClient.ActorNumber)
-        {
-            //StartCoroutine(SpawnAsteroid());
-        }
-    }
-
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         CheckEndOfGame();
@@ -93,7 +92,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if (changedProps.ContainsKey(GameSettings.PLAYER_LIVES))
+        if (changedProps.ContainsKey(GameSettings.PLAYER_SCORE))
         {
             CheckEndOfGame();
             return;
@@ -136,21 +135,43 @@ public class GameManager : MonoBehaviourPunCallbacks
         // if this is a rejoin (the ship is already network instantiated and will be setup via event)
         // we don't need to call PN.Instantiate
 
-        //-5.5 to 5.5
-        const float roomWidth = 11f, roomStart = -roomWidth/2;
-
-        var indexOffset = PhotonNetwork.CurrentRoom.PlayerCount - 1;
-        var clampedIndex = Mathf.Clamp(indexOffset, 1, int.MaxValue);
-        var positionStepX = roomWidth / clampedIndex;
-        var positionX = roomStart + positionStepX * PhotonNetwork.LocalPlayer.GetPlayerNumber();
-        var position = new Vector3(positionX, 2, 0);
-
+        var myPlayerNumber = PhotonNetwork.LocalPlayer.GetPlayerNumber();
+        
+        Debug.Log("instantiate player");
         // avoid this call on rejoin (ship was network instantiated before)
-        PhotonNetwork.Instantiate("Player_Tank", position, Quaternion.identity, 0);
+        
+        
+        PhotonNetwork.Instantiate("Player_Tank", _playerStartPositions[myPlayerNumber].position
+            , Quaternion.identity);
 
-        if (PhotonNetwork.IsMasterClient)
+       
+        StartCoroutine(CheckTimeLimit());
+
+        _mainCamera.enabled = false;
+    }
+
+    private IEnumerator CheckTimeLimit()
+    {
+        Debug.Log("start coroutine CheckTimeLimit");
+        _remainingTime = TimePerRoundInSeconds;
+
+        while (true)
         {
-            //StartCoroutine(SpawnAsteroid());
+            if (_remainingTime <= 0)
+            {
+                _remainingTime = 0;
+                
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    CheckEndOfGame();
+                }
+                
+                yield break;
+            }
+
+            _infoText.text = ((int) _remainingTime).ToString();
+            _remainingTime -= Time.deltaTime;
+            yield return null;
         }
     }
 
@@ -174,31 +195,48 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void CheckEndOfGame()
     {
-        var allDestroyed = true;
-        var livePlayers = 0;
-        var winner = "";
+        Debug.Log("CheckEndOfGame");
+        var winnersText = "";
+        var winners = new List<string>();
+        var winnerScore = int.MinValue;
+        
+
+        Debug.Log($"PhotonNetwork.PlayerList {PhotonNetwork.PlayerList}" +
+                  $", length {PhotonNetwork.PlayerList.Length}");
 
         foreach (var player in PhotonNetwork.PlayerList)
         {
-            if (player.CustomProperties.TryGetValue(GameSettings.PLAYER_LIVES, out var lives))
+            Debug.Log($"analysing {player.NickName}");
+            if (player.CustomProperties.TryGetValue(GameSettings.PLAYER_SCORE, out var score))
             {
-                if ((int) lives > 0)
+                var scoreInt = (int) score;
+                Debug.Log($"score {scoreInt}");
+
+                if (scoreInt > winnerScore)
                 {
-                    livePlayers++;
-                    winner = player.NickName;
+                    Debug.Log($"current winner: ");
+                    winnerScore = scoreInt;
+                    winners.Clear();
+                    winners.Add(player.NickName);
+                }
+                else if (scoreInt == winnerScore)
+                {
+                    winners.Add(player.NickName);
                 }
             }
         }
 
-        if (livePlayers == 1)
+        if (PhotonNetwork.IsMasterClient)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                StopAllCoroutines();
-            }
-
-            StartCoroutine(EndOfGame(winner));
+            StopAllCoroutines();
         }
+
+        foreach (var winner in winners)
+        {
+            winnersText += $"{winner}  ";
+        }
+        
+        StartCoroutine(EndOfGame(winnersText));
     }
 
     private void OnCountdownTimerIsExpired()

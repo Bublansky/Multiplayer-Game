@@ -38,7 +38,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 489274353}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -427,10 +427,9 @@ MonoBehaviour:
   _myCollider: {fileID: 0}
   _myRenderer: {fileID: 0}
   _myTransform: {fileID: 5089479149368237448}
-  _agent: {fileID: 4101897780189214460}
-  _movementSpeed: 200
-  _rotationSpeed: 720
-  _lookAt: {fileID: 0}
+  _myCamera: {fileID: 489274355}
+  _movementSpeed: 25
+  _rotationSpeed: 90
 --- !u!1001 &1047583450199898924
 PrefabInstance:
   m_ObjectHideFlags: 0

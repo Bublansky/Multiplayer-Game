@@ -26,7 +26,7 @@ public class PlayerOverviewPanel : MonoBehaviourPunCallbacks
             entryTransform.localScale = Vector3.one;
             entry.GetComponent<Text>().color = GameSettings.GetColor(player.GetPlayerNumber());
             entry.GetComponent<Text>().text =
-                $"{player.NickName}\nScore: {player.GetScore()}\nLives: {GameSettings.PLAYER_MAX_LIVES}";
+                $"{player.NickName}\nScore: {player.GetScore()}";
 
             _playerListEntries.Add(player.ActorNumber, entry);
         }
@@ -50,8 +50,7 @@ public class PlayerOverviewPanel : MonoBehaviourPunCallbacks
         if (_playerListEntries.TryGetValue(targetPlayer.ActorNumber, out var entry))
         {
             entry.GetComponent<Text>().text =
-                $"{targetPlayer.NickName}\nScore: {targetPlayer.GetScore()}\n" +
-                $"Lives: {targetPlayer.CustomProperties[GameSettings.PLAYER_LIVES]}";
+                $"{targetPlayer.NickName}\nScore: {targetPlayer.GetScore()}";
         }
     }
 

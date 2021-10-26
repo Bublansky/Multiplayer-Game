@@ -14,16 +14,13 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
     [SerializeField] private Collider _myCollider;
     [SerializeField] private Renderer _myRenderer;
     [SerializeField] private Transform _myTransform;
-    [SerializeField] private NavMeshAgent _agent;
+    [SerializeField] private Camera _myCamera;
 
     [Header("Parameters")]
     [SerializeField] private float _movementSpeed = 5.0f;
     [SerializeField] private float _rotationSpeed = 30f;
     
-    [SerializeField] private Transform _lookAt;
-
     private bool _controllable = true;
-    private Camera _mainCamera;
 
     #region MonoBehaviour Callbacks
 
@@ -37,13 +34,17 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
         // we flag as don't destroy on load so that instance survives level synchronization
         // , thus giving a seamless experience when levels load.
         DontDestroyOnLoad(gameObject);
-        _mainCamera = Camera.main;
+        if (photonView.IsMine)
+        {
+            _myCamera.enabled = true;
+            IncreaseScore(1);
+        }
     }
 
     private void Update()
     {
         Move();
-        Aim();
+        Shoot();
 
         return;
 
@@ -96,11 +97,12 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
         _myRigidbody.MoveRotation(Quaternion.Euler(rotation));
     }
 
-    private void Aim()
+    private void Shoot()
     {
+        
         //_myTransform.LookAt(_lookAt);
         return;
-        var cameraRay = _mainCamera.ScreenPointToRay(Input.mousePosition);
+        var cameraRay = _myCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(cameraRay, out var hit, 1000))
         {
@@ -113,15 +115,17 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
         }
     }
 
-    private void IncreaseDeathCounter()
+    private void IncreaseScore(int amount)
     {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(GameSettings.PLAYER_DEATHS, out var deaths))
+        Debug.Log($"IncreaseScore {amount}");
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(GameSettings.PLAYER_SCORE, out var score))
         {
             PhotonNetwork.LocalPlayer.SetCustomProperties(
                 new Hashtable
                 {
                     {
-                        GameSettings.PLAYER_DEATHS, (int) deaths + 1
+                        GameSettings.PLAYER_SCORE
+                        , (int) score + amount
                     }
                 });
         }
@@ -130,7 +134,6 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
     #region PUN CALLBACKS
 
     [PunRPC]
-    [UsedImplicitly]
     public void DestroyPlayer()
     {
         //_myCollider.enabled = false;
@@ -141,13 +144,11 @@ public class PlayerTankController : MonoBehaviourPunCallbacks
 
         if (photonView.IsMine)
         {
-            IncreaseDeathCounter();
             StartCoroutine(nameof(WaitForRespawn));
         }
     }
 
     [PunRPC]
-    [UsedImplicitly]
     public void RespawnTank()
     {
         //_myCollider.enabled = true;

@@ -63,15 +63,15 @@ public class CountdownTimer : MonoBehaviourPunCallbacks
         _isTimerRunning = false;
         enabled = false;
 
-        Debug.Log("Emptying info text.", _text);
-        _text.text = string.Empty;
+        //Debug.Log("Emptying info text.", _text);
+        //_text.text = string.Empty;
 
         OnCountdownTimerHasExpired?.Invoke();
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
     {
-        Debug.Log("CountdownTimer.OnRoomPropertiesUpdate " + propertiesThatChanged.ToStringFull());
+        //Debug.Log("CountdownTimer.OnRoomPropertiesUpdate " + propertiesThatChanged.ToStringFull());
         Initialize();
     }
 
@@ -80,8 +80,8 @@ public class CountdownTimer : MonoBehaviourPunCallbacks
         if (TryGetStartTime(out var propStartTime))
         {
             _startTime = propStartTime;
-            Debug.Log("Initialize sets StartTime " + _startTime + " server time now: " 
-                      + PhotonNetwork.ServerTimestamp + " remain: " + TimeRemaining());
+            //Debug.Log("Initialize sets StartTime " + _startTime + " server time now: " 
+                      //+ PhotonNetwork.ServerTimestamp + " remain: " + TimeRemaining());
 
             _isTimerRunning = TimeRemaining() > 0;
 
@@ -126,6 +126,6 @@ public class CountdownTimer : MonoBehaviourPunCallbacks
 
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
 
-        Debug.Log("Set Custom Props for Time: "+ props.ToStringFull() + " wasSet: "+wasSet);
+        //Debug.Log("Set Custom Props for Time: "+ props.ToStringFull() + " wasSet: "+wasSet);
     }
 }
